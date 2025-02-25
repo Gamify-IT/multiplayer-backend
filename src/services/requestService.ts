@@ -15,7 +15,6 @@ export const processRequest = async (data: ConnectionData): Promise<{playerId: n
     try {
         await getCourse(data.courseId);
         await getPlayer(data.playerId);
-        console.log("successfully validated course and player");
     }
     catch (error) {
         if (axios.isAxiosError(error)) {

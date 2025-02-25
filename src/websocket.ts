@@ -1,11 +1,15 @@
 import WebSocket, { Server } from 'ws';
 import { Server as HttpServer } from 'http';
 import { courses, pendingPlayers } from './services/requestService';
-import { Player } from './types';
+import { MessageType, Player } from './types';
 import { releaseId } from './utils/idGenerator';
 
 const connectedPlayers = new Map<WebSocket, Player>();
 
+/**
+ * Opens a websocket to connect with client and processes messages and clients throughout a session.
+ * @param server http server the websocket is using
+ */
 export const initWebSocket = (server: HttpServer) => {
     const wss = new Server({ server });
 
@@ -21,13 +25,16 @@ export const initWebSocket = (server: HttpServer) => {
                 return;
             }
 
-            const messageType = data instanceof Buffer ? data.readUInt8(0) : undefined;
+            const messageType: MessageType | undefined = data instanceof Buffer ? data.readUInt8(0) : undefined;
             switch (messageType) {
-                case 0:
+                case MessageType.Connection:
                     handleConnection(playerId, client);
                     break;
-                case 1:
+                case MessageType.Disconnection:
                     handleDisconnect(client, data);
+                    return;
+                case MessageType.PingPong:
+                    handlePing(client, data);
                     return;
                 case undefined:
                     return;
@@ -48,15 +55,25 @@ export const initWebSocket = (server: HttpServer) => {
     });
 };
 
+/**
+ * Retrieves the playerId of a network message.
+ * @param data received data
+ * @returns player's id or undefined
+ */
 function retrievePlayerId(data: WebSocket.RawData) {
     return data instanceof Buffer ? data.readUInt8(1) : undefined;
 }
 
+/**
+ * Saves a new player connection and adds it to the connected players and course data structure.
+ * @param playerId player id
+ * @param client websocket of the client
+ */
 function handleConnection(playerId: number, client: WebSocket) {
     // not correctly registered player
     if (!pendingPlayers.has(playerId)) {
         client.close();
-        console.error("player nor correctly registered");
+        console.error("player not correctly registered");
         return;
     }
 
@@ -74,11 +91,30 @@ function handleConnection(playerId: number, client: WebSocket) {
     connectedPlayers.set(client, {playerId, courseId});
 }
 
+/**
+ * Disconnects a player by broadcasting the disconnect and closing the websocket connection.
+ * @param client websocket of the client
+ * @param data received data
+ */
 function handleDisconnect(client: WebSocket, data: WebSocket.RawData) {
     broadcastToCourse(client, data);
     client.close();
 }
 
+/**
+ * Sends a pong to the client as response of a client's pong message.
+ * @param client websocket of the client
+ * @param data received data
+ */
+function handlePing(client: WebSocket, data: WebSocket.RawData) {
+    client.send(data);
+}
+
+/**
+ * Broadcasts a clients message to all connected clients of the same course.
+ * @param sender websocket of the client sending a message
+ * @param data message to be send
+ */
 function broadcastToCourse(sender: WebSocket, data: WebSocket.RawData) {
     const courseId = connectedPlayers.get(sender)?.courseId;
 
@@ -93,6 +129,10 @@ function broadcastToCourse(sender: WebSocket, data: WebSocket.RawData) {
     }
 }
 
+/**
+ * Removes a client from the connected players and from its course.
+ * @param client websocket of the client
+ */
 function removePlayer(client: WebSocket) {
     const player = connectedPlayers.get(client);
     
