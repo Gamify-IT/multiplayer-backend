@@ -1,35 +1,41 @@
-export const courses = new Map<number, Uint8Array>();
+export const availableIDs: Set<number> = new Set();
+const MAX_ID = 0xFFFF;
+let nextId: number = 1;
 
-export function getAvailableId(courseId: number): number {
-    if (!courses.has(courseId)) {
-        // 256 unique ids per course
-        courses.set(courseId, new Uint8Array(32));
-    }
-
-    const bitset = courses.get(courseId)!;
-
-    for (let byteIndex = 0; byteIndex < 32; byteIndex++) {
-        // only check non-full bytes
-        if (bitset[byteIndex] !== 0xff) {
-            for (let bitIndex = 0; bitIndex < 8; bitIndex++) {
-                const mask = 1 << bitIndex;
-                if ((bitset[byteIndex] & mask) === 0) {
-                    // set the bit
-                    bitset[byteIndex] |= mask;
-                    return byteIndex * 8 + bitIndex;
-                }
-            }
-        }
-    }
-    throw new Error(`No available IDs in course ${courseId}`);
+for (let i = 1; i <= MAX_ID; i++) {
+    availableIDs.add(i);
 }
 
-export function releaseId(courseId: number, id: number) {
-    if (!courses.has(courseId)) return;
+/**
+ * Gets a unique if for a client.
+ * @returns a unique id of 2 byte
+ */
+export function getId(): number {
+    if (availableIDs.size === 0) {
+        throw new Error("No available ID");
+    }
 
-    const bitset = courses.get(courseId)!;
-    const byteIndex = Math.floor(id / 8);
-    const bitIndex = id % 8;
-    // delete the bit
-    bitset[byteIndex] &= ~(1 << bitIndex);
+    const id = nextId;
+    availableIDs.delete(id);
+
+    do {
+        nextId = (nextId + 1) & MAX_ID;
+    } while (!availableIDs.has(nextId) && availableIDs.size > 0);
+
+    return id;
+}
+
+/**
+ * Releases a given id allowing it to reuse it.
+ * @param id id to release
+ */
+export function releaseId(id: number): void {
+    if (id < 0 || id > MAX_ID || availableIDs.has(id)) {
+        throw new Error("Invalid ID or already released");
+    }
+    availableIDs.add(id);
+
+    if (id < nextId) {
+        nextId = id;
+    }
 }

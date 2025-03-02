@@ -1,6 +1,6 @@
 import { createServer } from 'http';
 import { app } from './app';
-import { initWebSocket } from './websocket';
+import { initWebSocket } from './websocket/websocket';
 
 const server = createServer(app);
 initWebSocket(server);

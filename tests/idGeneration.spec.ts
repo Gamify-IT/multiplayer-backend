@@ -1,48 +1,42 @@
-import { getAvailableId, releaseId, courses } from "../src/utils/idGenerator";
+import { availableIDs, getId, releaseId } from "../src/utils/idGenerator";
 
-describe('Player ID generation', () => {
-  
+describe('player ID generation', () => {
   beforeEach(() => {
-    courses.clear();
-  });
-
-  test('Unique ID per course', () => {
-    const courseId = 1;
-
-    const id1 = getAvailableId(courseId);
-    const id2 = getAvailableId(courseId);
-
-    expect(id1).not.toBe(id2);
-  });
-
-  test('Reuse of released ID ', () => {
-    const courseId = 1;
-    
-    const id1 = getAvailableId(courseId);
-    releaseId(courseId, id1);
-    
-    const id2 = getAvailableId(courseId);
-    expect(id2).toBe(id1);
-  });
-
-  test('Error if all IDs are in use', () => {
-    const courseId = 1;
-
-    for (let i = 0; i < 256; i++) {
-      getAvailableId(courseId);
+    for (let i = 0; i <= 0xFFFF; i++) {
+        availableIDs.add(i);
     }
-
-    expect(() => getAvailableId(courseId)).toThrowError(`No available IDs in course ${courseId}`);
   });
 
-  test('no changes if same id is released multiple times', () => {
-    const courseId = 1;
-    const id1 = getAvailableId(courseId);
+  test('Unique ID generation', () => {
+    const id1 = getId();
+    const id2 = getId();
+    expect(id1).not.toBeNull();
+    expect(id2).not.toBeNull();
+    expect(id1).not.toEqual(id2);
+  });
 
-    releaseId(courseId, id1);
-    releaseId(courseId, id1);
+  test('Reuse of released ID', () => {
+    const id1 = getId();
+    expect(id1).not.toBeNull();
 
-    const id2 = getAvailableId(courseId);
-    expect(id2).toBe(id1);
+    releaseId(id1!);
+    const id2 = getId();
+    expect(id2).toEqual(id1);
+  });
+
+  test('Error on releasing invalid ID', () => {
+    expect(() => releaseId(-1)).toThrow("Invalid ID or already released");
+    expect(() => releaseId(0x10000)).toThrow("Invalid ID or already released");
+  });
+
+  test('Error if no IDs available', () => {
+    const ids: number[] = [];
+    for (let i = 0; i <= 0xFFFF; i++) {
+      ids.push(getId()!);
+    }
+    expect(() => getId()).toThrowError(new Error("No available ID"));
+
+    releaseId(ids[0]);
+    expect(getId()).toEqual(ids[0]);
   });
 });

@@ -2,17 +2,14 @@ import WebSocket from 'ws';
 
 export interface ConnectionData {
     playerId: string;
+    clientId?: number;
     courseId: number;
 }
 
-export interface Player {
-    playerId: number;
-    courseId: number;
-}
-
-export interface CourseMember {
-    playerId: number;
-    client: WebSocket;
+export interface Client {
+    clientId: number;
+    courseId?: number;
+    ws?: WebSocket;
 }
 
 export enum MessageType {
@@ -22,5 +19,5 @@ export enum MessageType {
     Position = 3,
     Character = 4,
     Area = 5,
-    PingPong = 6
+    Timeout = 6
 }
