@@ -13,6 +13,24 @@ export function retrieveClientId(data: WebSocket.RawData) {
 }
 
 /**
+ * Creates a disconnection message for this client.
+ * @param clientId client id
+ * @returns disconnection network message
+ */
+export function createDisconnectionMessage(clientId: number) : Uint8Array {
+    let index = 0;
+    let data = new Uint8Array(3); // 1 byte message type, 2 byte client id
+    
+    data[index] = 1; // disconnection message type = 1
+    index++;
+    
+    data[index] = clientId & 0xFF;
+    data[index + 1] = (clientId >> 8) & 0xFF;
+
+    return data;
+}
+
+/**
  * Saves the new client connection and adds it to the connected clients map, the known clients list and the clients course.
  * @param clientId client id
  * @param ws websocket of the client
@@ -70,7 +88,7 @@ export function handleTimeout(client: WebSocket, data: WebSocket.RawData) {
  * @param sender websocket of the client sending a message
  * @param data message to be send
  */
-export function broadcastToCourse(sender: WebSocket, data: WebSocket.RawData) {
+export function broadcastToCourse(sender: WebSocket, data: WebSocket.RawData | Uint8Array) {
     const courseId = connectedClients.get(sender)?.courseId!;
     const clients = courses.get(courseId);
     if (clients != undefined) {

@@ -2,7 +2,8 @@ import WebSocket, { Server } from 'ws';
 import { Server as HttpServer } from 'http';
 import { MessageType } from '../types';
 import { Buffer } from 'buffer';
-import { broadcastToCourse, disconnectClient, handleConnection, handleDisconnect, handleTimeout, removeClient, retrieveClientId } from './websocketService';
+import { broadcastToCourse, createDisconnectionMessage, disconnectClient, handleConnection, handleDisconnect, handleTimeout, removeClient, retrieveClientId } from './websocketService';
+import { connectedClients } from '../data/data';
 
 /**
  * Opens a websocket to connect with client and processes messages and clients throughout a session.
@@ -50,6 +51,8 @@ export const initWebSocket = (server: HttpServer) => {
             if (code !== 1000) {
                 console.log("unexpected disconnect");
                 // TODO: create disconnect message and broadcast disconnect in client's course
+                const data = createDisconnectionMessage(connectedClients.get(ws)?.clientId!);
+                broadcastToCourse(ws, data);
                 removeClient(ws);
             }
         });
