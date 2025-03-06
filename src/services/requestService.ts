@@ -13,7 +13,7 @@ import { courses, knownClients, pendingClients } from "../data/data";
 export const processRequest = async (data: ConnectionData): Promise<{ clientId: number }> => {
     const courseId = data.courseId;
     const playerId = data.playerId;
-    const clientId = data.clientId ? Number(data.clientId) : undefined;
+    const clientId = data.clientId !== undefined || data.clientId !== 0 ? Number(data.clientId) : undefined;
 
     if (!courseId || !playerId) {
         throw new Error("No course id or player id found in connection data");

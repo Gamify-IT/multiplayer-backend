@@ -47,14 +47,14 @@ export function handleConnection(clientId: number, ws: WebSocket) {
             disconnectClient(ws);
             return;
         }
-        courses.get(courseId)!.add({ clientId: clientId, ws: ws });
+        courses.get(courseId)?.add({ clientId: clientId, ws: ws });
         connectedClients.set(ws, { clientId: clientId, courseId: courseId });
         return;
     }
     // reconnection of already known client
     else if (knownClients.has(clientId)) {
         const courseId = knownClients.get(clientId)!;
-        courses.get(courseId)!.add({ clientId: clientId, ws: ws });
+        courses.get(courseId)?.add({ clientId: clientId, ws: ws });
         connectedClients.set(ws, { clientId: clientId, courseId: courseId });
         return;
     }

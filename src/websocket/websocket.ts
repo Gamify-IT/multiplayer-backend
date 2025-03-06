@@ -50,9 +50,12 @@ export const initWebSocket = (server: HttpServer) => {
             // remove client data if graceful disconnect
             if (code !== 1000) {
                 console.log("unexpected disconnect");
-                // TODO: create disconnect message and broadcast disconnect in client's course
-                const data = createDisconnectionMessage(connectedClients.get(ws)?.clientId!);
-                broadcastToCourse(ws, data);
+                // create disconnect message and broadcast disconnect in client's course
+                const client = connectedClients.get(ws);
+                if (client !== undefined) {
+                    const data = createDisconnectionMessage(client.clientId);
+                    broadcastToCourse(ws, data);
+                }
                 removeClient(ws);
             }
         });
