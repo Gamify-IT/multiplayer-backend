@@ -1,0 +1,144 @@
+# Docker-compose file for development of the multiplayer-server.
+# The Gamify-IT project consists of multiple microservices.
+# This docker-compose deployment starts all databases and services needed for manual testing of the multiplayer-server.
+#
+# >> In this file specifically EXCLUDES the multiplayer-server. Start the multiplayer-server in your preferred IDE. This allows you to use the debugger.
+#
+# Docker-compose documentation for developers:
+#   https://gamifyit-docs.readthedocs.io/en/latest/dev-manuals/languages/docker/docker-compose.html
+#
+# Environment variables and options of the different Gamify-IT services:
+#   https://gamifyit-docs.readthedocs.io/en/latest/install-manuals/index.html
+#
+# Configuration options for Keycloak:
+#   https://www.keycloak.org/server/all-config
+
+version: "3.7"
+
+services:
+
+  # --- databases ---
+  # The databases are used to store the data of the different Gamify-IT services.
+  # They are non-persistent, meaning that they always contain a clean set of data from our test data.
+  # To reset the databases, simply remove the containers and restart the docker-compose file.
+
+  # The setup container fills the databases with the test data.
+  # The available datasets are stored here: https://github.com/gamify-it/test-data
+  setup:
+    container_name: setup
+    image: ghcr.io/gamify-it/test-data:latest
+    pull_policy: always
+    restart: on-failure
+    environment:
+      POSTGRES_SETUP: >
+        keycloak/default.sql
+        overworld/default.sql
+
+  keycloak-db:
+    container_name: keycloak-db
+    image: postgres:14-alpine
+    restart: always
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  overworld-db:
+
+  chickenshock-db:
+    container_name: overworld-db
+    image: postgres:14-alpine
+    restart: always
+    expose:
+      - "5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  # --- backends ---
+  # These backend services contain the logic of the Gamify-IT services.
+  keycloak:
+    container_name: keycloak
+    expose:
+      - "80"
+    image: quay.io/keycloak/keycloak:19.0
+    command:
+      - "start-dev"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+
+      KC_HOSTNAME_STRICT: false
+      KC_PROXY: edge
+      KC_HTTP_RELATIVE_PATH: /keycloak
+      KC_HTTP_PORT: 80
+
+  overworld-backend:
+    container_name:   overworld-backend
+    image: ghcr.io/gamify-it/overworld-backend:main
+    restart: always
+    pull_policy: always
+    expose:
+      - "80"
+    depends_on:
+      - overworld-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_URL=postgresql://overworld-db:5432/postgres
+      - CHICKENSHOCK_URL=http://chickenshock-backend/api/v1
+      - KEYCLOAK_ISSUER=http://localhost/keycloak/realms/Gamify-IT
+      - KEYCLOAK_URL=http://keycloak/keycloak/realms/Gamify-IT
+
+  # --- frontends ---
+  # These frontend services contain the user interface of the Gamify-IT services.
+  # They are pre-built and pulled from the Gamify-IT Docker registry.
+  landing-page:
+    container_name: landing-page
+    image: ghcr.io/gamify-it/landing-page:main
+    restart: always
+    pull_policy: always
+    expose:
+      - "80"
+
+  lecturer-interface:
+    container_name: lecturer-interface
+    image: ghcr.io/gamify-it/lecturer-interface:main
+    restart: always
+    expose:
+      - "80"
+
+  overworld:
+    container_name: overworld
+    image: ghcr.io/gamify-it/overworld:main
+    restart: always
+    pull_policy: always
+    expose:
+      - "80"
+
+  chickenshock-frontend:
+    container_name: overworld
+    image: ghcr.io/gamify-it/overworld:main
+    restart: always
+    pull_policy: always
+    expose:
+      - "80"
+
+  # --- reverse proxy ---
+  # The reverse proxy is used to route the requests to the different services.
+  # None of the services are exposed to the outside world, but instead this reverse proxy is.
+  # When started, you can access it with your browser via: http://localhost
+  reverse-proxy:
+    container_name: reverse-proxy
+    image: nginx
+    restart: always
+    volumes:
+      - ./.nginx/compose/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
