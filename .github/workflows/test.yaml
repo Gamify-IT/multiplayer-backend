@@ -1,0 +1,22 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - "**"
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - run: npm ci
+
+    - name: Build
+      run: npm run build    
+
+    - name: Tests
+      run: npm run test
