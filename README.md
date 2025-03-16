@@ -22,7 +22,7 @@ Install the dependencies
 npm install
 ```
 ### Build and Run
-Build the unity project like described in [this manual](https://gamifyit-docs.readthedocs.io/en/latest/dev-manuals/languages/unity/build-unity-project.html).
+Build the unity project like described in [this manual](https://gamifyit-docs.readthedocs.io/en/latest/dev-manuals/languages/docker/docker-compose-unity.html).
 
 To run the multiplayer server locally with IDE features and all necessary dependencies, start the dependencies via docker:
 ```sh
