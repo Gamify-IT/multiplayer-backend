@@ -5,7 +5,8 @@ import { initWebSocket } from './websocket/websocket';
 const server = createServer(app);
 initWebSocket(server);
 
-const PORT = 3000;
+const PORT = 80;
+
 server.listen(PORT, () => {
     console.log(`server running on ${PORT}`);
 });
