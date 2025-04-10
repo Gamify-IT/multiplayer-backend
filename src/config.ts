@@ -1,4 +1,4 @@
 export default {
     // URL of the RESTful API
-    overworldApiUrl: "http://gamify-it-overworld/overworld/api/v1",
+    overworldApiUrl: "/overworld/api/v1",
   };

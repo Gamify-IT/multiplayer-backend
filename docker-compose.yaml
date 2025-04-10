@@ -1,8 +1,8 @@
-# Docker-compose file for development of the multiplayer-server.
+# Docker-compose file for development of the multiplayer-backend.
 # The Gamify-IT project consists of multiple microservices.
-# This docker-compose deployment starts all databases and services needed for manual testing of the multiplayer-server.
+# This docker-compose deployment starts all databases and services needed for manual testing of the multiplayer-backend.
 #
-# >> In this file, the multiplayer-server is started using its Dockerfile.
+# >> In this file, the multiplayer-backend is started using its Dockerfile.
 #
 # Docker-compose documentation for developers:
 #   https://gamifyit-docs.readthedocs.io/en/latest/dev-manuals/languages/docker/docker-compose.html
@@ -121,11 +121,11 @@ services:
       - KEYCLOAK_ISSUER=http://localhost/keycloak/realms/Gamify-IT
       - KEYCLOAK_URL=http://keycloak/keycloak/realms/Gamify-IT
 
-  # The multiplayer-server is what we are currently developing.
+  # The multiplayer-backend is what we are currently developing.
   # Note that this container is NOT pulled as a pre-built image, but instead contains your local code.
   # When you change the code, you need to rebuild and restart the container.
-  multiplayer-server:
-    container_name: multiplayer-server
+  multiplayer-backend:
+    container_name: multiplayer-backend
     build: .
     restart: always
     expose:
