@@ -1,4 +1,4 @@
-import { verify, decode } from "jsonwebtoken";
+/*import { verify, decode } from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
 const ISSUER = "http://localhost/keycloak/realms/Gamify-IT";
@@ -55,4 +55,4 @@ export default {
   validateTokenOrThrow,
   extractUserId,
   hasRolesOrThrow,
-};
+};*/

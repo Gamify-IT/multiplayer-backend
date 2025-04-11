@@ -1,4 +1,4 @@
-import { validateTokenOrThrow } from "./jwtValidator";
+/*import { validateTokenOrThrow } from "./jwtValidator";
 
 const authMiddleware = async (req, res, next) => {
   const token = req.cookies["access_token"];
@@ -13,4 +13,4 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-export default authMiddleware;
+export default authMiddleware;*/

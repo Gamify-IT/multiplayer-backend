@@ -28,10 +28,10 @@ export const processRequest = async (data: ConnectionData): Promise<{ clientId: 
             if (error.response?.status === 404) {
                 throw new Error("Course or player not found");
             } else {
-                throw new Error("Failed to fetch course or player" + error);
+                throw new Error("Failed to fetch course or player: " + error);
             }
         } else {
-            throw new Error("Unexpected error while checking course");
+            throw new Error("Unexpected error while checking course or player: " + error);
         }
     }
 

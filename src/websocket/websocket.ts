@@ -4,13 +4,35 @@ import { MessageType } from '../types';
 import { Buffer } from 'buffer';
 import { broadcastToCourse, createDisconnectionMessage, disconnectClient, handleConnection, handleDisconnect, handleTimeout, removeClient, retrieveClientId } from './websocketService';
 import { connectedClients } from '../data/data';
+import cookie from 'cookie';
+import { validateTokenOrThrow } from '../authentification/jwtValidator';
 
 /**
  * Opens a websocket to connect with client and processes messages and clients throughout a session.
  * @param server http server the websocket is using
  */
 export const initWebSocket = (server: HttpServer) => {
-    const wss = new Server({ server });
+    const wss = new Server({ 
+        server,
+        verifyClient: async (info, done) => {
+            try {
+                const cookies = cookie.parse(info.req.headers.cookie || '');
+                const token = cookies['access_token'];
+
+                if (!token) {
+                    console.log("Missing JWT cookie");
+                    return done(false, 401, "Unauthorized");
+                }
+
+                await validateTokenOrThrow(token);
+                done(true);
+            }
+            catch (err: any) {
+                console.error("JWT validation failed:" + err.message);
+                done(false, 401, "Unauthorized");
+            }
+        }
+    });
 
     wss.on('connection', (ws) => {
         console.log("client connected");
