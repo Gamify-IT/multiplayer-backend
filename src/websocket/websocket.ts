@@ -4,38 +4,43 @@ import { MessageType } from '../types';
 import { Buffer } from 'buffer';
 import { broadcastToCourse, createDisconnectionMessage, disconnectClient, handleConnection, handleDisconnect, handleTimeout, removeClient, retrieveClientId } from './websocketService';
 import { connectedClients } from '../data/data';
-import cookie from 'cookie';
 import { validateTokenOrThrow } from '../authentification/jwtValidator';
 
 /**
- * Opens a websocket to connect with client and processes messages and clients throughout a session.
+ * Opens a websocket to connect with an authenticated client.
+ * Processes messages and handles clients throughout a session.
  * @param server http server the websocket is using
  */
 export const initWebSocket = (server: HttpServer) => {
-    const wss = new Server({ 
-        server,
-        verifyClient: async (info, done) => {
-            try {
-                const cookies = cookie.parse(info.req.headers.cookie || '');
-                const token = cookies['access_token'];
+    const wss = new Server({ server });
 
-                if (!token) {
-                    console.log("Missing JWT cookie");
-                    return done(false, 401, "Unauthorized");
-                }
-
-                await validateTokenOrThrow(token);
-                done(true);
-            }
-            catch (err: any) {
-                console.error("JWT validation failed:" + err.message);
-                done(false, 401, "Unauthorized");
-            }
+    wss.on('connection', async (ws, req) => {
+        const cookies = req.headers.cookie;
+        
+        if (!cookies) {
+            ws.close(4001, "Missing cookie");
+            return;
         }
-    });
 
-    wss.on('connection', (ws) => {
-        console.log("client connected");
+        const accessToken = cookies
+            .split(";")
+            .map(cookie => cookie.trim())
+            .find(cookie => cookie.startsWith("access_token="))
+            ?.split("=")[1];
+
+        if (!accessToken) {
+            ws.close(4001, "Missing access token");
+            return;
+        }
+
+        try {
+            await validateTokenOrThrow(accessToken);
+        } catch (error) {
+            ws.close(4001, "Invalid token");
+            return;
+        }
+
+        console.log("Client connected");
 
         ws.on('message', (data: WebSocket.RawData) => {
             // get playerId from data

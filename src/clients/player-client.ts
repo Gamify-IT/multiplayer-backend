@@ -1,9 +1,15 @@
 import axios, { AxiosResponse } from "axios";
 import config from "../config";
 
-//axios.defaults.withCredentials = true;
-
-export async function getPlayer(id: string): Promise<AxiosResponse> {
-    console.log(`${config.overworldApiUrl}/players/${id}`);
-    return axios.get(`${config.overworldApiUrl}/players/${id}`);
+/**
+ * Fetches a player by its ID from the overworld backend.
+ * @param id the ID of the course to fetch
+ * @param accessToken passed access token
+ */
+export async function getPlayer(id: string, accessToken: string): Promise<AxiosResponse> {
+    return axios.get(`${config.overworldApiUrl}/players/${id}`, {
+        headers:  {
+            Cookie: `access_token=${accessToken}`,
+        }
+    });
 }

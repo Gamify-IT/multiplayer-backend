@@ -1,40 +1,41 @@
-import { verify, decode, JwtPayload } from "jsonwebtoken";
+import { verify, JwtPayload } from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
+// keycloak information from env variables
+const KEYCLOAK_URL = process.env.KEYCLOAK_URL;
 const ISSUER = process.env.KEYCLOAK_ISSUER;
-const JWKS_URL = "http://keycloak/keycloak/realms/Gamify-IT/protocol/openid-connect/certs";
+const JWKS_URL = `${KEYCLOAK_URL}/protocol/openid-connect/certs`;
 
+// initialize JWKS client
 const client = jwksClient({
     jwksUri: JWKS_URL,
     cache: true,
     rateLimit: true,
 });
 
+/**
+ * Retrieves the signing key from thr JWKS endpoint based on the 'kid' i the token header.
+ * @param header the JWT header containing the 'kid' (key ID)
+ * @param callback callback to return the singing key or an error
+ */
 function getKey(header: { kid?: string }, callback: (err: Error | null, key?: string) => void) {
-    if (!header.kid) {
-        console.error('Missing kid in JWT header');
-        return callback(new Error("JWT header does not contain 'kid'"));
-    }
-    console.log('Requesting signing key for kid:', header.kid);
+    if (!header.kid) return callback(new Error("JWT header does not contain 'kid'"));
 
     client.getSigningKey(header.kid, (err, key) => {
-        if (err) {
-            console.error('Error fetching signing key:', err);
-            return callback(err);
-        }
-        if (!key) {
-            console.error('No signing key returned!');
-            return callback(new Error("Signing key not found"));
-        }
+        if (err) return callback(err);
+        if (!key) return callback(new Error("Signing key not found"));
         const signingKey = key.getPublicKey();
-        console.log('Obtained signing key:', signingKey.slice(0, 40) + '...');
         callback(null, signingKey);
     });
 }
 
+/**
+ * Validates the JWT token and resolves with the decoded payload if valid.
+ * @param token the JWT token to validate
+ * @returns promise that resolves with the decoded payload or rejects with an error
+ */
 export function validateTokenOrThrow(token: string): Promise<JwtPayload> {
     return new Promise((resolve, reject) => {
-        console.log("Token: " + token);
         verify(
             token,
             getKey,
@@ -44,25 +45,10 @@ export function validateTokenOrThrow(token: string): Promise<JwtPayload> {
             },
             (err, decoded) => {
                 if (err) {
-                    console.error("JWT validation failed:", err.message);
                     return reject(new Error("Unauthorized"));
                 }
                 resolve(decoded as JwtPayload);
-                console.log("successfully authorized");
             }
         );
     });
-}
-
-export function extractUserId(token: string): string | undefined {
-    const decoded = decode(token) as JwtPayload | null;
-    return decoded?.sub;
-}
-
-export function hasRolesOrThrow(decoded: JwtPayload, requiredRoles: string[] = []): void {
-    const userRoles = decoded?.realm_access?.roles || [];
-    const hasAll = requiredRoles.every((r) => userRoles.includes(r));
-    if (!hasAll) {
-        throw new Error("User does not have required roles");
-    }
 }
