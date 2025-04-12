@@ -1,8 +1,8 @@
-# Docker-compose file for development of the multiplayer-server.
+# Docker-compose file for development of the multiplayer-backend.
 # The Gamify-IT project consists of multiple microservices.
-# This docker-compose deployment starts all databases and services needed for manual testing of the multiplayer-server.
+# This docker-compose deployment starts all databases and services needed for manual testing of the multiplayer-backend.
 #
-# >> In this file specifically EXCLUDES the multiplayer-server. Start the multiplayer-server in your preferred IDE. This allows you to use the debugger.
+# >> In this file specifically EXCLUDES the multiplayer-backend. Start the multiplayer-backend in your preferred IDE. This allows you to use the debugger.
 #
 # Docker-compose documentation for developers:
 #   https://gamifyit-docs.readthedocs.io/en/latest/dev-manuals/languages/docker/docker-compose.html
@@ -45,6 +45,14 @@ services:
       - POSTGRES_PASSWORD=postgres
 
   overworld-db:
+    container_name: overworld-db
+    image: postgres:14-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
   chickenshock-db:
     container_name: overworld-db

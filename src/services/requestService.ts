@@ -8,9 +8,10 @@ import { courses, knownClients, pendingClients } from "../data/data";
 /**
  * Processes a connection request from a client.
  * @param data received client data
+ * @param accessToken JWT access token of the client
  * @returns course-unique id
  */
-export const processRequest = async (data: ConnectionData): Promise<{ clientId: number }> => {
+export const processRequest = async (data: ConnectionData, accessToken: string): Promise<{ clientId: number }> => {
     const courseId = data.courseId;
     const playerId = data.playerId;
     const clientId = data.clientId !== undefined || data.clientId !== 0 ? Number(data.clientId) : undefined;
@@ -20,18 +21,18 @@ export const processRequest = async (data: ConnectionData): Promise<{ clientId: 
     }
     // check if course and player actually do exist
     try {
-        await getCourse(courseId);
-        await getPlayer(playerId);
+        await getCourse(courseId, accessToken);
+        await getPlayer(playerId, accessToken);
     }
     catch (error) {
         if (axios.isAxiosError(error)) {
             if (error.response?.status === 404) {
                 throw new Error("Course or player not found");
             } else {
-                throw new Error("Failed to fetch course or player" + error);
+                throw new Error("Failed to fetch course or player: " + error);
             }
         } else {
-            throw new Error("Unexpected error while checking course");
+            throw new Error("Unexpected error while checking course or player: " + error);
         }
     }
 

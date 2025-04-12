@@ -1,4 +1,4 @@
-# Multiplayer-Server
+# Multiplayer-Backend
 
 This is the server used for the multiplayer in the [overworld](https://github.com/Gamify-IT/overworld).
 It consists of a REST API and WebSocket support for real-time communication. \
@@ -15,7 +15,7 @@ git clone https://github.com/Gamify-IT/overworld.git
 #### Multiplayer Server
 Clone the repository  
 ```sh
-git clone https://github.com/Gamify-IT/multiplayer-server.git
+git clone https://github.com/Gamify-IT/multiplayer-backend.git
 ```
 Install the dependencies
 ```sh
@@ -35,9 +35,13 @@ npm run dev
 You can now access the game at [localhost](http://localhost).
 
 ## Tests
-There are a few [tests](https://github.com/Gamify-IT/multiplayer-server/blob/main/tests/) to check system performance and feature accuracy.
+There are a few [tests](https://github.com/Gamify-IT/multiplayer-backend/blob/main/tests/) to check system performance and feature accuracy. \
+Tests can be run with:
+```sh
+npm run test
+```
 ### Unique ID generation 
-The generation of new client session ids is [tested](https://github.com/Gamify-IT/multiplayer-server/blob/main/tests/idGeneration.spec.ts) for:
+The generation of new client session ids is [tested](https://github.com/Gamify-IT/multiplayer-backend/blob/main/tests/idGeneration.spec.ts) for:
 - uniqueness
 - reuse after release
 - error for releasing invalid id

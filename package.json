@@ -1,5 +1,5 @@
 {
-  "name": "multiplayer-server",
+  "name": "multiplayer-backend",
   "version": "1.0.0",
   "main": "server.ts",
   "scripts": {
@@ -17,11 +17,17 @@
   "description": "",
   "dependencies": {
     "@socket.io/redis-adapter": "^7.1.0",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/jsonwebtoken": "^9.0.9",
     "axios": "^1.8.2",
+    "cookie": "^1.0.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^14.3.2",
     "express": "^4.21.2",
     "http-proxy-middleware": "^3.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.2.0",
     "moment": "^2.24.0",
     "redis": "^4.0.2",
     "socket.io": "^4.4.1",

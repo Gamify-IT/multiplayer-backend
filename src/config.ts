@@ -1,4 +1,4 @@
+// URL of the RESTful API
 export default {
-    // URL of the RESTful API
-    overworldApiUrl: "http://gamify-it-overworld/overworld/api/v1",
-  };
+  overworldApiUrl: process.env.OVERWORLD_URL || "http://gamify-it-overworld-backend/api/v1",
+};
