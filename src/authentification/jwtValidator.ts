@@ -2,8 +2,8 @@ import { verify, JwtPayload } from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
 // keycloak information from env variables
-const KEYCLOAK_URL = process.env.KEYCLOAK_URL;
-const ISSUER = process.env.KEYCLOAK_ISSUER;
+const KEYCLOAK_URL = process.env.KEYCLOAK_URL || "http://gamify-it-keycloak/keycloak/realms/Gamify-IT";
+const ISSUER = process.env.KEYCLOAK_ISSUER || "http://localhost/keycloak/realms/Gamify-IT";
 const JWKS_URL = `${KEYCLOAK_URL}/protocol/openid-connect/certs`;
 
 // initialize JWKS client

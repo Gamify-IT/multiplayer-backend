@@ -130,6 +130,10 @@ services:
     restart: always
     expose:
       - "80"
+    environment:
+      - OVERWORLD_URL=http://overworld-backend/api/v1
+      - KEYCLOAK_ISSUER=http://localhost/keycloak/realms/Gamify-IT
+      - KEYCLOAK_URL=http://keycloak/keycloak/realms/Gamify-IT
 
   # --- frontends ---
   # These frontend services contain the user interface of the Gamify-IT services.
@@ -150,6 +154,12 @@ services:
       - "80"
 
   overworld:
+    container_name: overworld
+    image: ghcr.io/gamify-it/overworld:main
+    restart: always
+    pull_policy: always
+    expose:
+      - "80"
 
   chickenshock-frontend:
     container_name: overworld

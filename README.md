@@ -35,7 +35,11 @@ npm run dev
 You can now access the game at [localhost](http://localhost).
 
 ## Tests
-There are a few [tests](https://github.com/Gamify-IT/multiplayer-backend/blob/main/tests/) to check system performance and feature accuracy.
+There are a few [tests](https://github.com/Gamify-IT/multiplayer-backend/blob/main/tests/) to check system performance and feature accuracy. \
+Tests can be run with:
+```sh
+npm run test
+```
 ### Unique ID generation 
 The generation of new client session ids is [tested](https://github.com/Gamify-IT/multiplayer-backend/blob/main/tests/idGeneration.spec.ts) for:
 - uniqueness
