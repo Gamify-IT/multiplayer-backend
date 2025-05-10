@@ -4,7 +4,7 @@ import { MessageType } from '../types';
 import { Buffer } from 'buffer';
 import { broadcastToCourse, createDisconnectionMessage, disconnectClient, handleConnection, handleDisconnect, handleTimeout, removeClient, retrieveClientId } from './websocketService';
 import { connectedClients } from '../data/data';
-import { validateTokenOrThrow } from '../authentification/jwtValidator';
+import { validateTokenOrThrow } from '../authentication/jwtValidator';
 
 /**
  * Opens a websocket to connect with an authenticated client.
