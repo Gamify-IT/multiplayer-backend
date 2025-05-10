@@ -13,7 +13,7 @@ export const handlePostRequest = async (req: Request, res: Response) => {
             return;
         }
         if (!req.accessToken) {
-            res.status(400).json({ error: 'Missing authentification token' });
+            res.status(400).json({ error: 'Missing authentication token' });
             return;
         }
         const result = await processRequest(req.body, req.accessToken);

@@ -2,7 +2,7 @@ import express from 'express';
 import apiRoutes from './routes/apiRoutes';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import authMiddleware from './authentification/authMiddleware';
+import authMiddleware from './authentication/authMiddleware';
 
 export const app = express();
 
